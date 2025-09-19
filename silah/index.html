@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>سِلعة - منصة الإعلانات المبوبة</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- الهيدر -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">سِلعة</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="#categories">الفئات</a></li>
+                    <li><a href="#about">حولنا</a></li>
+                    <li><a href="#contact">اتصل بنا</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <!-- سيتم تحديث هذا القسم بواسطة JavaScript -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <!-- قسم البحث -->
+            <section class="search-section">
+                <h2 class="text-center mb-4">ابحث عن ما تريد</h2>
+                <form id="searchForm" class="search-form">
+                    <div class="search-input">
+                        <label class="form-label">البحث</label>
+                        <input type="text" name="search_query" class="form-control" placeholder="ابحث عن المنتجات والخدمات...">
+                    </div>
+                    <div class="filter-select">
+                        <label class="form-label">الفئة</label>
+                        <select name="category_id" class="form-control category-select">
+                            <option value="">جميع الفئات</option>
+                        </select>
+                    </div>
+                    <div class="filter-select">
+                        <label class="form-label">السعر من</label>
+                        <input type="number" name="min_price" class="form-control" placeholder="0" min="0">
+                    </div>
+                    <div class="filter-select">
+                        <label class="form-label">السعر إلى</label>
+                        <input type="number" name="max_price" class="form-control" placeholder="1000" min="0">
+                    </div>
+                    <div class="filter-select">
+                        <label class="form-label">الموقع</label>
+                        <input type="text" name="location" class="form-control" placeholder="غزة">
+                    </div>
+                    <div>
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary w-100">بحث</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- قسم الإعلانات -->
+            <section class="ads-section">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>أحدث الإعلانات</h2>
+                    <a href="dashboard.html" class="btn btn-success">أضف إعلانك</a>
+                </div>
+                <div class="row" id="adsContainer">
+                    <!-- سيتم تحميل الإعلانات هنا بواسطة JavaScript -->
+                </div>
+            </section>
+
+            <!-- قسم الفئات -->
+            <section id="categories" class="categories-section mt-5">
+                <h2 class="text-center mb-4">تصفح حسب الفئة</h2>
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="card-title">📱 إلكترونيات</h3>
+                                <p class="card-text">هواتف، أجهزة كمبيوتر، أجهزة منزلية</p>
+                                <a href="#" class="btn btn-primary" onclick="filterByCategory(1)">تصفح</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="card-title">🚗 سيارات</h3>
+                                <p class="card-text">سيارات مستعملة وجديدة، قطع غيار</p>
+                                <a href="#" class="btn btn-primary" onclick="filterByCategory(2)">تصفح</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="card-title">🏠 عقارات</h3>
+                                <p class="card-text">شقق، منازل، محلات تجارية</p>
+                                <a href="#" class="btn btn-primary" onclick="filterByCategory(3)">تصفح</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center">
+                            <div class="card-body">
+                                <h3 class="card-title">🪑 أثاث</h3>
+                                <p class="card-text">أثاث منزلي ومكتبي</p>
+                                <a href="#" class="btn btn-primary" onclick="filterByCategory(4)">تصفح</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قسم حولنا -->
+            <section id="about" class="about-section mt-5">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h2 class="card-title">حول منصة سِلعة</h2>
+                        <p class="card-text">
+                            منصة سِلعة هي منصة إعلانات مبوبة مصممة خصيصاً لسكان غزة، تهدف إلى توفير مكان آمن وموثوق 
+                            لبيع وشراء السلع والخدمات. نحن نسعى لتسهيل التجارة المحلية وربط المجتمع من خلال منصة 
+                            رقمية حديثة وسهلة الاستخدام.
+                        </p>
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <h4>🔒 آمن وموثوق</h4>
+                                <p>نظام مصادقة قوي وحماية للبيانات</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h4>📱 سهل الاستخدام</h4>
+                                <p>واجهة بسيطة ومتجاوبة مع جميع الأجهزة</p>
+                            </div>
+                            <div class="col-md-4">
+                                <h4>🌍 محلي</h4>
+                                <p>مصمم خصيصاً للمجتمع المحلي في غزة</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قسم اتصل بنا -->
+            <section id="contact" class="contact-section mt-5">
+                <div class="card">
+                    <div class="card-body">
+                        <h2 class="card-title text-center">اتصل بنا</h2>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h4>معلومات الاتصال</h4>
+                                <p><strong>البريد الإلكتروني:</strong> info@silah.ps</p>
+                                <p><strong>الهاتف:</strong> +970 8 123 4567</p>
+                                <p><strong>العنوان:</strong> غزة، فلسطين</p>
+                            </div>
+                            <div class="col-md-6">
+                                <h4>أرسل لنا رسالة</h4>
+                                <form>
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" placeholder="الاسم" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <input type="email" class="form-control" placeholder="البريد الإلكتروني" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <textarea class="form-control" rows="4" placeholder="الرسالة" required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">إرسال</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 منصة سِلعة. جميع الحقوق محفوظة.</p>
+            <p>تم تطويره بواسطة فريق سِلعة</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // تصفية حسب الفئة
+        function filterByCategory(categoryId) {
+            loadAds({ category_id: categoryId });
+            // التمرير إلى قسم الإعلانات
+            document.querySelector('.ads-section').scrollIntoView({ behavior: 'smooth' });
+        }
+    </script>
+</body>
+</html>
+

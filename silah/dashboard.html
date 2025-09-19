@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - سِلعة</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- الهيدر -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">سِلعة</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="messages.html">الرسائل</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <!-- سيتم تحديث هذا القسم بواسطة JavaScript -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="mb-4">لوحة التحكم</h1>
+            
+            <!-- إحصائيات سريعة -->
+            <div class="row mb-4">
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="card-title" id="totalAds">0</h3>
+                            <p class="card-text">إجمالي الإعلانات</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="card-title" id="activeAds">0</h3>
+                            <p class="card-text">الإعلانات النشطة</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="card text-center">
+                        <div class="card-body">
+                            <h3 class="card-title" id="unreadMessages">0</h3>
+                            <p class="card-text">الرسائل غير المقروءة</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <!-- قسم إضافة إعلان جديد -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">إضافة إعلان جديد</h3>
+                            
+                            <form id="adForm">
+                                <div class="form-group">
+                                    <label class="form-label">الفئة</label>
+                                    <select name="category_id" class="form-control category-select" required>
+                                        <option value="">اختر الفئة</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">عنوان الإعلان</label>
+                                    <input type="text" name="title" class="form-control" required minlength="3">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">الوصف</label>
+                                    <textarea name="description" class="form-control" rows="4" required minlength="10"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">السعر (₪)</label>
+                                    <input type="number" name="price" class="form-control" required min="0" step="0.01">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">الموقع</label>
+                                    <input type="text" name="location" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">رابط الصورة (اختياري)</label>
+                                    <input type="url" name="image_url" class="form-control" placeholder="https://example.com/image.jpg">
+                                </div>
+                                
+                                <button type="submit" class="btn btn-success w-100">إضافة الإعلان</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- قسم إعلاناتي -->
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">إعلاناتي</h3>
+                            <div id="userAdsContainer">
+                                <!-- سيتم تحميل إعلانات المستخدم هنا -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- قسم الرسائل الأخيرة -->
+            <div class="row mt-4">
+                <div class="col-12">
+                    <div class="card">
+                        <div class="card-body">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <h3 class="card-title">الرسائل الأخيرة</h3>
+                                <a href="messages.html" class="btn btn-primary">عرض جميع الرسائل</a>
+                            </div>
+                            <div id="recentMessagesContainer">
+                                <!-- سيتم تحميل الرسائل الأخيرة هنا -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 منصة سِلعة. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        // التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!currentUser) {
+                showAlert('يجب تسجيل الدخول للوصول إلى لوحة التحكم', 'danger');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // تحميل بيانات لوحة التحكم
+            loadDashboardData();
+        });
+
+        // تحميل بيانات لوحة التحكم
+        async function loadDashboardData() {
+            try {
+                // تحميل إعلانات المستخدم
+                await loadUserAds();
+                
+                // تحميل عدد الرسائل غير المقروءة
+                await loadUnreadMessagesCount();
+                
+                // تحميل الرسائل الأخيرة
+                await loadRecentMessages();
+                
+            } catch (error) {
+                console.error('Error loading dashboard data:', error);
+            }
+        }
+
+        // تحميل إعلانات المستخدم
+        async function loadUserAds() {
+            try {
+                const response = await apiCall(`ads.php?action=getUserAds&user_id=${currentUser.user_id}`, 'GET');
+                if (response.success) {
+                    const userAds = response.data;
+                    updateUserAdsUI(userAds);
+                    updateAdsStats(userAds);
+                }
+            } catch (error) {
+                console.error('Error loading user ads:', error);
+            }
+        }
+
+        // تحديث واجهة إعلانات المستخدم
+        function updateUserAdsUI(ads) {
+            const container = document.getElementById('userAdsContainer');
+            if (ads.length === 0) {
+                container.innerHTML = '<p class="text-center">لا توجد إعلانات</p>';
+                return;
+            }
+
+            container.innerHTML = ads.slice(0, 5).map(ad => `
+                <div class="ad-item mb-3 p-3" style="border: 1px solid #e9ecef; border-radius: 5px;">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h5>${ad.title}</h5>
+                            <p class="mb-1"><strong>${ad.price} ₪</strong></p>
+                            <small class="text-muted">${ad.status === 'active' ? 'نشط' : 'غير نشط'}</small>
+                        </div>
+                        <div>
+                            <button onclick="editAd(${ad.ad_id})" class="btn btn-sm btn-primary">تعديل</button>
+                            <button onclick="deleteAd(${ad.ad_id})" class="btn btn-sm btn-danger">حذف</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+
+            if (ads.length > 5) {
+                container.innerHTML += `<p class="text-center"><a href="#" onclick="showAllUserAds()">عرض جميع الإعلانات (${ads.length})</a></p>`;
+            }
+        }
+
+        // تحديث إحصائيات الإعلانات
+        function updateAdsStats(ads) {
+            document.getElementById('totalAds').textContent = ads.length;
+            document.getElementById('activeAds').textContent = ads.filter(ad => ad.status === 'active').length;
+        }
+
+        // تحميل عدد الرسائل غير المقروءة
+        async function loadUnreadMessagesCount() {
+            try {
+                const response = await apiCall(`messages.php?action=getUnreadCount&user_id=${currentUser.user_id}`, 'GET');
+                if (response.success) {
+                    document.getElementById('unreadMessages').textContent = response.data.unread_count;
+                }
+            } catch (error) {
+                console.error('Error loading unread messages count:', error);
+            }
+        }
+
+        // تحميل الرسائل الأخيرة
+        async function loadRecentMessages() {
+            try {
+                const response = await apiCall(`messages.php?action=get&user_id=${currentUser.user_id}`, 'GET');
+                if (response.success) {
+                    const messages = response.data.slice(0, 5);
+                    updateRecentMessagesUI(messages);
+                }
+            } catch (error) {
+                console.error('Error loading recent messages:', error);
+            }
+        }
+
+        // تحديث واجهة الرسائل الأخيرة
+        function updateRecentMessagesUI(messages) {
+            const container = document.getElementById('recentMessagesContainer');
+            if (messages.length === 0) {
+                container.innerHTML = '<p class="text-center">لا توجد رسائل</p>';
+                return;
+            }
+
+            container.innerHTML = messages.map(message => `
+                <div class="message-item">
+                    <div class="message-sender">
+                        ${message.sender_id === currentUser.user_id ? 'إلى: ' + message.receiver_username : 'من: ' + message.sender_username}
+                    </div>
+                    <div class="message-content">${message.message_content.substring(0, 100)}${message.message_content.length > 100 ? '...' : ''}</div>
+                    <div class="message-time">${formatDate(message.sent_at)}</div>
+                </div>
+            `).join('');
+        }
+
+        // تعديل إعلان
+        function editAd(adId) {
+            // يمكن تطوير هذه الوظيفة لاحقاً
+            showAlert('وظيفة التعديل قيد التطوير', 'info');
+        }
+
+        // حذف إعلان
+        async function deleteAd(adId) {
+            if (!confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
+                return;
+            }
+
+            try {
+                const response = await apiCall('ads.php?action=delete', 'POST', {
+                    ad_id: adId,
+                    user_id: currentUser.user_id
+                });
+
+                if (response.success) {
+                    showAlert('تم حذف الإعلان بنجاح', 'success');
+                    loadUserAds(); // إعادة تحميل الإعلانات
+                } else {
+                    showAlert(response.message, 'danger');
+                }
+            } catch (error) {
+                showAlert('حدث خطأ أثناء حذف الإعلان', 'danger');
+                console.error('Delete ad error:', error);
+            }
+        }
+
+        // عرض جميع إعلانات المستخدم
+        function showAllUserAds() {
+            // يمكن تطوير هذه الوظيفة لاحقاً
+            showAlert('وظيفة عرض جميع الإعلانات قيد التطوير', 'info');
+        }
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنشاء حساب - سِلعة</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- الهيدر -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">سِلعة</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="login.html">تسجيل الدخول</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-md-6">
+                    <div class="card">
+                        <div class="card-body">
+                            <h2 class="card-title text-center mb-4">إنشاء حساب جديد</h2>
+                            
+                            <form id="registerForm">
+                                <div class="form-group">
+                                    <label class="form-label">اسم المستخدم</label>
+                                    <input type="text" name="username" class="form-control" required minlength="3">
+                                    <small class="form-text">يجب أن يكون 3 أحرف على الأقل</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">البريد الإلكتروني</label>
+                                    <input type="email" name="email" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">كلمة المرور</label>
+                                    <input type="password" name="password" class="form-control" required minlength="6">
+                                    <small class="form-text">يجب أن تكون 6 أحرف على الأقل</small>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-label">تأكيد كلمة المرور</label>
+                                    <input type="password" name="confirm_password" class="form-control" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label class="form-check-label">
+                                        <input type="checkbox" required> أوافق على <a href="#" target="_blank">شروط الاستخدام</a> و <a href="#" target="_blank">سياسة الخصوصية</a>
+                                    </label>
+                                </div>
+                                
+                                <button type="submit" class="btn btn-primary w-100">إنشاء الحساب</button>
+                            </form>
+                            
+                            <div class="text-center mt-3">
+                                <p>لديك حساب بالفعل؟ <a href="login.html">تسجيل الدخول</a></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 منصة سِلعة. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
+

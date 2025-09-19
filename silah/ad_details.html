@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل الإعلان - سِلعة</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- الهيدر -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">سِلعة</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="dashboard.html">لوحة التحكم</a></li>
+                    <li><a href="messages.html">الرسائل</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <!-- سيتم تحديث هذا القسم بواسطة JavaScript -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <div id="adDetailsContainer">
+                <!-- سيتم تحميل تفاصيل الإعلان هنا -->
+            </div>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 منصة سِلعة. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        let currentAd = null;
+
+        // تحميل تفاصيل الإعلان عند تحميل الصفحة
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const adId = urlParams.get('id');
+            
+            if (!adId) {
+                showAlert('معرف الإعلان غير صحيح', 'danger');
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+                return;
+            }
+            
+            loadAdDetails(adId);
+        });
+
+        // تحميل تفاصيل الإعلان
+        async function loadAdDetails(adId) {
+            try {
+                showLoading();
+                const response = await apiCall(`ads.php?action=get&ad_id=${adId}`, 'GET');
+                hideLoading();
+                
+                if (response.success) {
+                    currentAd = response.data;
+                    updateAdDetailsUI();
+                } else {
+                    showAlert('الإعلان غير موجود', 'danger');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('حدث خطأ أثناء تحميل تفاصيل الإعلان', 'danger');
+                console.error('Load ad details error:', error);
+            }
+        }
+
+        // تحديث واجهة تفاصيل الإعلان
+        function updateAdDetailsUI() {
+            const container = document.getElementById('adDetailsContainer');
+            
+            container.innerHTML = `
+                <div class="row">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-body">
+                                <h1 class="card-title">${currentAd.title}</h1>
+                                
+                                <div class="ad-image mb-4">
+                                    ${currentAd.image_url ? 
+                                        `<img src="${currentAd.image_url}" alt="${currentAd.title}" style="width: 100%; max-height: 400px; object-fit: cover; border-radius: 10px;">` : 
+                                        '<div style="width: 100%; height: 300px; background-color: #f8f9fa; display: flex; align-items: center; justify-content: center; border-radius: 10px; color: #6c757d;">لا توجد صورة</div>'
+                                    }
+                                </div>
+                                
+                                <div class="ad-meta mb-4">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <p><strong>السعر:</strong> <span class="text-success" style="font-size: 1.5rem;">${currentAd.price} ₪</span></p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>الموقع:</strong> 📍 ${currentAd.location}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>الفئة:</strong> ${currentAd.category_name}</p>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <p><strong>تاريخ النشر:</strong> ${formatDate(currentAd.created_at)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="ad-description">
+                                    <h3>الوصف</h3>
+                                    <p>${currentAd.description}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-body">
+                                <h3 class="card-title">معلومات البائع</h3>
+                                <p><strong>الاسم:</strong> ${currentAd.username}</p>
+                                <p><strong>البريد الإلكتروني:</strong> ${currentAd.email}</p>
+                                
+                                ${currentUser && currentUser.user_id !== currentAd.user_id ? `
+                                    <button onclick="showContactModal()" class="btn btn-success w-100 mb-3">تواصل مع البائع</button>
+                                ` : ''}
+                                
+                                ${currentUser && currentUser.user_id === currentAd.user_id ? `
+                                    <div class="alert alert-info">
+                                        هذا إعلانك
+                                    </div>
+                                    <button onclick="editAd()" class="btn btn-primary w-100 mb-2">تعديل الإعلان</button>
+                                    <button onclick="deleteAd()" class="btn btn-danger w-100">حذف الإعلان</button>
+                                ` : ''}
+                                
+                                ${!currentUser ? `
+                                    <div class="alert alert-info">
+                                        <a href="login.html">سجل دخولك</a> للتواصل مع البائع
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="card mt-3">
+                            <div class="card-body">
+                                <h4 class="card-title">نصائح للأمان</h4>
+                                <ul style="font-size: 0.9rem;">
+                                    <li>تأكد من المنتج قبل الدفع</li>
+                                    <li>التقي في مكان عام وآمن</li>
+                                    <li>لا تشارك معلوماتك المالية</li>
+                                    <li>تأكد من هوية البائع</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // عرض نافذة التواصل
+        function showContactModal() {
+            if (!currentUser) {
+                showAlert('يجب تسجيل الدخول أولاً', 'danger');
+                return;
+            }
+            
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay';
+            modal.innerHTML = `
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>تواصل مع البائع</h3>
+                        <button onclick="closeModal()" class="btn btn-secondary">×</button>
+                    </div>
+                    <div class="modal-body">
+                        <p><strong>الإعلان:</strong> ${currentAd.title}</p>
+                        <p><strong>البائع:</strong> ${currentAd.username}</p>
+                        <hr>
+                        <form id="contactForm">
+                            <input type="hidden" name="receiver_id" value="${currentAd.user_id}">
+                            <input type="hidden" name="ad_id" value="${currentAd.ad_id}">
+                            <div class="form-group">
+                                <label class="form-label">رسالتك</label>
+                                <textarea name="message_content" class="form-control" rows="4" placeholder="مرحباً، أنا مهتم بهذا الإعلان..." required></textarea>
+                            </div>
+                            <div class="d-flex gap-2">
+                                <button type="submit" class="btn btn-primary">إرسال الرسالة</button>
+                                <button type="button" onclick="closeModal()" class="btn btn-secondary">إلغاء</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+            
+            // ربط حدث النموذج
+            document.getElementById('contactForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const messageData = {
+                    sender_id: currentUser.user_id,
+                    receiver_id: formData.get('receiver_id'),
+                    ad_id: formData.get('ad_id'),
+                    message_content: formData.get('message_content')
+                };
+                
+                try {
+                    const response = await apiCall('messages.php?action=send', 'POST', messageData);
+                    
+                    if (response.success) {
+                        showAlert('تم إرسال الرسالة بنجاح', 'success');
+                        closeModal();
+                    } else {
+                        showAlert(response.message, 'danger');
+                    }
+                } catch (error) {
+                    showAlert('حدث خطأ أثناء إرسال الرسالة', 'danger');
+                    console.error('Send message error:', error);
+                }
+            });
+        }
+
+        // تعديل الإعلان
+        function editAd() {
+            showAlert('وظيفة التعديل قيد التطوير', 'info');
+        }
+
+        // حذف الإعلان
+        async function deleteAd() {
+            if (!confirm('هل أنت متأكد من حذف هذا الإعلان؟')) {
+                return;
+            }
+
+            try {
+                const response = await apiCall('ads.php?action=delete', 'POST', {
+                    ad_id: currentAd.ad_id,
+                    user_id: currentUser.user_id
+                });
+
+                if (response.success) {
+                    showAlert('تم حذف الإعلان بنجاح', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 2000);
+                } else {
+                    showAlert(response.message, 'danger');
+                }
+            } catch (error) {
+                showAlert('حدث خطأ أثناء حذف الإعلان', 'danger');
+                console.error('Delete ad error:', error);
+            }
+        }
+    </script>
+</body>
+</html>
+

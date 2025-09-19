@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الرسائل - سِلعة</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- الهيدر -->
+    <header class="header">
+        <div class="container">
+            <nav class="navbar">
+                <a href="index.html" class="logo">سِلعة</a>
+                <ul class="nav-links">
+                    <li><a href="index.html">الرئيسية</a></li>
+                    <li><a href="dashboard.html">لوحة التحكم</a></li>
+                </ul>
+                <div class="auth-buttons">
+                    <!-- سيتم تحديث هذا القسم بواسطة JavaScript -->
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="container">
+            <h1 class="mb-4">الرسائل</h1>
+            
+            <div class="row">
+                <!-- قائمة المحادثات -->
+                <div class="col-md-4">
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">المحادثات</h3>
+                            <div id="conversationsContainer">
+                                <!-- سيتم تحميل قائمة المحادثات هنا -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- المحادثة المحددة -->
+                <div class="col-md-8">
+                    <div class="card">
+                        <div class="card-body">
+                            <div id="conversationHeader" class="d-none">
+                                <h3 class="card-title" id="conversationTitle">المحادثة</h3>
+                                <hr>
+                            </div>
+                            
+                            <div id="noConversationSelected" class="text-center">
+                                <p>اختر محادثة لعرضها</p>
+                            </div>
+                            
+                            <div id="conversationContainer" class="d-none">
+                                <div class="message-list" id="messagesList">
+                                    <!-- سيتم تحميل الرسائل هنا -->
+                                </div>
+                                
+                                <form id="messageForm" class="message-form">
+                                    <input type="hidden" name="receiver_id" id="receiverId">
+                                    <input type="hidden" name="ad_id" id="adId">
+                                    <div class="form-group">
+                                        <textarea name="message_content" class="form-control" rows="3" placeholder="اكتب رسالتك هنا..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary">إرسال</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; 2024 منصة سِلعة. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+    <script>
+        let currentConversation = null;
+        let conversations = [];
+
+        // التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!currentUser) {
+                showAlert('يجب تسجيل الدخول للوصول إلى الرسائل', 'danger');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+                return;
+            }
+            
+            // تحميل المحادثات
+            loadConversations();
+        });
+
+        // تحميل قائمة المحادثات
+        async function loadConversations() {
+            try {
+                showLoading();
+                const response = await apiCall(`messages.php?action=getConversationsList&user_id=${currentUser.user_id}`, 'GET');
+                hideLoading();
+                
+                if (response.success) {
+                    conversations = response.data;
+                    updateConversationsUI();
+                } else {
+                    showAlert('فشل في تحميل المحادثات', 'danger');
+                }
+            } catch (error) {
+                hideLoading();
+                showAlert('حدث خطأ أثناء تحميل المحادثات', 'danger');
+                console.error('Load conversations error:', error);
+            }
+        }
+
+        // تحديث واجهة المحادثات
+        function updateConversationsUI() {
+            const container = document.getElementById('conversationsContainer');
+            
+            if (conversations.length === 0) {
+                container.innerHTML = '<p class="text-center">لا توجد محادثات</p>';
+                return;
+            }
+
+            container.innerHTML = conversations.map(conversation => `
+                <div class="conversation-item p-3 mb-2" style="border: 1px solid #e9ecef; border-radius: 5px; cursor: pointer; ${conversation.unread_count > 0 ? 'background-color: #f8f9fa;' : ''}" 
+                     onclick="selectConversation(${conversation.other_user_id}, ${conversation.ad_id}, '${conversation.other_username}', '${conversation.ad_title}')">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <h6 class="mb-1">${conversation.other_username}</h6>
+                            <small class="text-muted">${conversation.ad_title}</small>
+                        </div>
+                        <div class="text-right">
+                            ${conversation.unread_count > 0 ? `<span class="badge badge-primary">${conversation.unread_count}</span>` : ''}
+                            <small class="text-muted d-block">${formatDate(conversation.last_message_time)}</small>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // اختيار محادثة
+        async function selectConversation(otherUserId, adId, otherUsername, adTitle) {
+            currentConversation = {
+                other_user_id: otherUserId,
+                ad_id: adId,
+                other_username: otherUsername,
+                ad_title: adTitle
+            };
+
+            // تحديث واجهة المحادثة
+            document.getElementById('noConversationSelected').classList.add('d-none');
+            document.getElementById('conversationHeader').classList.remove('d-none');
+            document.getElementById('conversationContainer').classList.remove('d-none');
+            
+            document.getElementById('conversationTitle').textContent = `محادثة مع ${otherUsername} - ${adTitle}`;
+            document.getElementById('receiverId').value = otherUserId;
+            document.getElementById('adId').value = adId;
+
+            // تحميل رسائل المحادثة
+            await loadConversationMessages();
+        }
+
+        // تحميل رسائل المحادثة
+        async function loadConversationMessages() {
+            if (!currentConversation) return;
+
+            try {
+                const response = await apiCall(
+                    `messages.php?action=getConversation&user1_id=${currentUser.user_id}&user2_id=${currentConversation.other_user_id}&ad_id=${currentConversation.ad_id}`, 
+                    'GET'
+                );
+                
+                if (response.success) {
+                    updateMessagesUI(response.data);
+                    // تحديد الرسائل كمقروءة
+                    markMessagesAsRead(response.data);
+                }
+            } catch (error) {
+                console.error('Load conversation messages error:', error);
+            }
+        }
+
+        // تحديث واجهة الرسائل
+        function updateMessagesUI(messages) {
+            const container = document.getElementById('messagesList');
+            
+            if (messages.length === 0) {
+                container.innerHTML = '<p class="text-center">لا توجد رسائل في هذه المحادثة</p>';
+                return;
+            }
+
+            container.innerHTML = messages.map(message => `
+                <div class="message-item ${message.sender_id === currentUser.user_id ? 'sent' : 'received'}">
+                    <div class="message-sender">
+                        ${message.sender_id === currentUser.user_id ? 'أنت' : message.sender_username}
+                    </div>
+                    <div class="message-content">${message.message_content}</div>
+                    <div class="message-time">${formatDate(message.sent_at)}</div>
+                </div>
+            `).join('');
+
+            // التمرير إلى آخر رسالة
+            container.scrollTop = container.scrollHeight;
+        }
+
+        // تحديد الرسائل كمقروءة
+        async function markMessagesAsRead(messages) {
+            const unreadMessages = messages.filter(message => 
+                message.receiver_id === currentUser.user_id && !message.is_read
+            );
+
+            if (unreadMessages.length === 0) return;
+
+            try {
+                const messageIds = unreadMessages.map(message => message.message_id);
+                await apiCall('messages.php?action=markAsRead', 'POST', {
+                    message_ids: messageIds,
+                    user_id: currentUser.user_id
+                });
+                
+                // إعادة تحميل المحادثات لتحديث العدادات
+                loadConversations();
+            } catch (error) {
+                console.error('Mark messages as read error:', error);
+            }
+        }
+
+        // معالجة إرسال رسالة (تخصيص للصفحة)
+        document.addEventListener('DOMContentLoaded', function() {
+            const messageForm = document.getElementById('messageForm');
+            if (messageForm) {
+                messageForm.addEventListener('submit', async function(e) {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(e.target);
+                    const messageData = {
+                        sender_id: currentUser.user_id,
+                        receiver_id: formData.get('receiver_id'),
+                        ad_id: formData.get('ad_id'),
+                        message_content: formData.get('message_content')
+                    };
+                    
+                    try {
+                        const response = await apiCall('messages.php?action=send', 'POST', messageData);
+                        
+                        if (response.success) {
+                            e.target.reset();
+                            // إعادة تحميل رسائل المحادثة
+                            await loadConversationMessages();
+                            // إعادة تحميل قائمة المحادثات
+                            loadConversations();
+                        } else {
+                            showAlert(response.message, 'danger');
+                        }
+                    } catch (error) {
+                        showAlert('حدث خطأ أثناء إرسال الرسالة', 'danger');
+                        console.error('Send message error:', error);
+                    }
+                });
+            }
+        });
+    </script>
+
+    <style>
+        .conversation-item:hover {
+            background-color: #f8f9fa !important;
+        }
+        
+        .message-item.sent {
+            text-align: left;
+            background-color: #007bff;
+            color: white;
+            margin-left: 20%;
+            border-radius: 10px 10px 5px 10px;
+        }
+        
+        .message-item.received {
+            text-align: right;
+            background-color: #e9ecef;
+            margin-right: 20%;
+            border-radius: 10px 10px 10px 5px;
+        }
+        
+        .badge {
+            background-color: #007bff;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+        }
+    </style>
+</body>
+</html>
+
